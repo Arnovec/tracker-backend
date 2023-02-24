@@ -1,10 +1,11 @@
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
-const db = require('./db');
-const fs = require('fs');
+const { Users, Trainings } = require('./db/sequelize');
+// const fs = require('fs');
 
-// добавить Sequelize
+const authRouter = require('./routes/auth');
+
 
 const cors = require('cors');
 const corsOpts = {
@@ -22,20 +23,44 @@ const corsOpts = {
 
 app.use(cors(corsOpts));
 app.use(express.json());
+app.use('/api/auth', authRouter);
 
-app.get("/", (req, res) => {
+
+
+app.get("/", async (req, res) => {
+    // const aboba = await Users.findOne({
+    //     where: {
+    //         id: 1
+    //     },
+    //     include: Trainings
+    // });
+    // const tr_aboba = await aboba.getTrainings();
+    // console.log(aboba.toJSON());
+
     res.json({
         message: "aboba",
     })
 });
 
 app.get("/news", async (req, res) => {
+    const trainings = await Trainings.findAll({
+        raw: true
+    });
+    console.log("qwe");
+
+    return res.json({ trainings });
+});
+
+app.get("/temp", async (req, res) => {
     const trainings = (await db.query(
         'SELECT * FROM trainings'
     )).rows;
 
-    return res.json({ trainings });
-});
+    return res.json({
+        message: "ok",
+        trainings
+    });
+})
 
 app.post("/add/training", async (req, res) => {
     try {
@@ -46,7 +71,7 @@ app.post("/add/training", async (req, res) => {
             const json = JSON.stringify({ trajectory });
             const newTraining = (await db.query(
                 'INSERT INTO trainings (user_id, trajectory) values ($1, $2) RETURNING *',
-                ["1", json]
+                ["1", trajectory]
             )).rows[0];
 
             return res.json({ message: "Ok", training: newTraining });
