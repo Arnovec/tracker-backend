@@ -1,15 +1,10 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { Users } = require('../db/sequelize');
-const { validationResult } = require('express-validator');
-
-function checkValidation(req) {
-    const validationRes = validationResult(req);
-    if (!validationRes.isEmpty()) {
-
-        throw new Error();
-    }
-}
+const {
+    checkRefreshToken,
+    checkValidation
+} = require('./index');
 
 async function checkUser(login, password) {
     let user = await Users.findOne({
@@ -25,43 +20,13 @@ async function checkUser(login, password) {
     return user;
 }
 
-async function checkUserWithHash(user) {
-    let findUser = await Users.findOne({
-        where: {
-            id: user.id,
-            login: user.login,
-            password: user.password
-        }
-    });
 
-    if (!findUser)
-        throw new Error();
-    return findUser.toJSON();
-}
-
-async function checkAcessToken(token) {
-    if (!token) throw new Error();
-
-    const user = jwt.verify(token, "acess_key");
-    await checkUserWithHash(user);
-
-    return user;
-}
-
-async function checkRefreshToken(token) {
-    if (!token) throw new Error();
-
-    const user = jwt.verify(token, "refresh_key");
-    await checkUserWithHash(user);
-
-    return user;
-}
 
 function generateAccesToken(user) {
     return jwt.sign(
         { id: user.id, login: user.login, password: user.password },
-        "acess_key",
-        { expiresIn: "10m" }
+        "access_key",
+        { expiresIn: "1m" }
     )
 }
 
@@ -74,8 +39,8 @@ function generateRefreshToken(user) {
 
 function result(user) {
     return {
-        acessToken: generateAccesToken(user),
-        refreshTokens: generateRefreshToken(user),
+        accessToken: generateAccesToken(user),
+        refreshToken: generateRefreshToken(user),
         id: user.id,
     }
 }

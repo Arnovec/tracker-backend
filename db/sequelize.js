@@ -10,6 +10,8 @@ const sequelize = new Sequelize('athletics_track', 'dron61', '123', {
         // underscored: true
     }
 });
+// sequelize.sync({ logging: console.log })
+
 
 const Users = sequelize.define('users', {
     // Model attributes are defined here
@@ -46,13 +48,56 @@ const Trainings = sequelize.define('trainings', {
     user_id: {
         type: DataTypes.INTEGER,
     },
-    trajectory: {
-        type: DataTypes.ARRAY(DataTypes.JSONB),
-    }
+    distance: {
+        type: DataTypes.INTEGER,
+    },
+    time: {
+        type: DataTypes.INTEGER,
+    },
+    temp: {
+        type: DataTypes.INTEGER,
+    },
+    start_time: {
+        type: DataTypes.BIGINT,
+    },
 }, {
-    
+    // Other model options go here
 });
 
-Users.hasMany(Trainings, {foreignKey: "user_id", sourceKey: "id"});
+const Points = sequelize.define('points', {
+    training_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        primaryKey: true,
+    },
+    part: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+    time: {
+        type: DataTypes.BIGINT,
+        allowNull: false,
+        primaryKey: true,
+    },
+    latitude: {
+        type: DataTypes.REAL,
+        allowNull: false,
+    },
+    longitude: {
+        type: DataTypes.REAL,
+        allowNull: false,
+    },
+}, {
 
-module.exports = { Users, Trainings }
+});
+
+Users.hasMany(Trainings, { foreignKey: "user_id", sourceKey: "id" });
+Trainings.belongsTo(Users, {
+    foreignKey: "user_id",
+    sourceKey: "id",
+    onDelete: "CASCADE",
+});
+Trainings.hasMany(Points, { foreignKey: "training_id", sourceKey: "id" });
+Points.belongsTo(Trainings, { foreignKey: "training_id", sourceKey: "id" });
+
+module.exports = { Users, Trainings, Points }

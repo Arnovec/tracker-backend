@@ -5,6 +5,9 @@ const { Users, Trainings } = require('./db/sequelize');
 // const fs = require('fs');
 
 const authRouter = require('./routes/auth');
+const trainingRouter = require('./routes/training');
+const userRouter = require('./routes/user');
+const testRouter = require('./routes/test')
 
 
 const cors = require('cors');
@@ -24,6 +27,9 @@ const corsOpts = {
 app.use(cors(corsOpts));
 app.use(express.json());
 app.use('/api/auth', authRouter);
+app.use('/api/trainings', trainingRouter); 
+app.use('/api/users', userRouter); 
+app.use('/api/tests', testRouter);
 
 
 
@@ -37,7 +43,7 @@ app.get("/", async (req, res) => {
     // const tr_aboba = await aboba.getTrainings();
     // console.log(aboba.toJSON());
 
-    res.json({
+    return res.json({
         message: "aboba",
     })
 });
@@ -52,14 +58,17 @@ app.get("/news", async (req, res) => {
 });
 
 app.get("/temp", async (req, res) => {
-    const trainings = (await db.query(
-        'SELECT * FROM trainings'
-    )).rows;
-
-    return res.json({
-        message: "ok",
-        trainings
-    });
+    try {
+        await Trainings.destroy({
+            where: {
+                id: 24,
+            }
+        })
+        return res.sendStatus(200);
+    } catch (err) {
+        console.log(err)
+    }
+    return res.sendStatus(401);
 })
 
 app.post("/add/training", async (req, res) => {
