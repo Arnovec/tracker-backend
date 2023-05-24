@@ -1,45 +1,52 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const { Users, Trainings, Points } = require('../db/sequelize');
+const { Users, Trainings, Points, PacePerKilometer } = require('../db/sequelize');
 const { userAttributes } = require('../db/attributes');
 const {
     checkAccessToken,
     checkValidation
 } = require('./index');
+const { Sequelize } = require('sequelize');
+const { getDistanceFromLatLon } = require('./geo');
+const { getStatisticByPoints } = require('./sport');
 
 
 class trainingController {
 
     async add(req, res) {
         try {
-            const { training } = req.body;
-            console.log("------------------------------------------")
-            console.log(training);
-            console.log("------------------------------------------")
+            const { points } = req.body;
             checkValidation(req);
             const authHeader = req.headers["authorization"];
             const token = authHeader.split(" ")[1];
 
+
             const user = await checkAccessToken(token);
 
+            //Темп по каждому километру
+            const training = {
+                points,
+                user_id: user.id,
+                ...getStatisticByPoints(points),
+            }
+
+            console.log(training.pace_per_kilometer);
 
             const newTraining = Trainings.build(
+                training,
                 {
-                    user_id: 31,//user.id
-                    ...training
-                },
-                { include: [Points] }
+                    include: [
+                        Points,
+                        PacePerKilometer
+                    ]
+                }
             );
-            // points.forEach(elem => {
-            //     const newPoint = Points.build({
-            //         ...elem,
-            //         training_id: newTraining.id
-            //     })
-            //     newTraining.addPoint(newPoint)
-            // });
 
-            console.log("newTraining ", newTraining);
             newTraining.save();
+
+            // TODO qwe
+
+
 
             return res.json({ message: "Ok" });
         } catch (error) {
@@ -50,17 +57,21 @@ class trainingController {
 
     async getList(req, res) {
         try {
-            let page = Number(req.query.page);
             let limit = req.query.limit ? req.query.limit : 3;
-            let offset = 0;
+            let last_id = Number(req.query.last_id);
+            let where;
 
-            if (Number.isInteger(page) && page > 1) {
-                offset = (page - 1) * limit
+            if (Number.isInteger(last_id)) {
+                where = {
+                    id: {
+                        [Sequelize.Op.lt]: last_id
+                    }
+                }
             }
 
             const trainings = await Trainings.findAll({
                 limit,
-                offset,
+                where,
                 include: [
                     {
                         model: Users,
@@ -68,11 +79,12 @@ class trainingController {
                     },
                     {
                         model: Points,
-                    }
+                    },
+
                 ],
                 order: [
-                    ["start_time", "Desc"],
-                    ["id", "ASC"],
+                    // ["start_time", "Desc"],
+                    ["id", "Desc"],
                     [Points, 'time', 'ASC']
                 ],
                 // raw: true,
@@ -85,12 +97,73 @@ class trainingController {
             // console.log("------------------------------------------")
             // console.log(trainings)
             // console.log("------------------------------------------")
-            return res.json({ trainings });
+            return res.json({
+                elements: trainings
+            });
         } catch (error) {
             console.log(error);
         }
         return res.sendStatus(401);
     }
+
+    async getTrainingById(req, res) {
+        try {
+            const id = req.params.id;
+
+            const training = await Trainings.findByPk(id, {
+                include: [
+                    {
+                        model: Users,
+                        attributes: userAttributes,
+                    },
+                    Points, PacePerKilometer,
+                ],
+                order: [
+                    [Points, 'time', 'ASC']
+                ],
+            });
+            if (!training) {
+                return res.sendStatus(404);
+            }
+
+            return res.json({
+                ...training.toJSON()
+            });
+        } catch (err) {
+            console.log(err);
+        }
+        return res.sendStatus(404);
+    }
+
+    async getTrainingAnalysisById(req, res) {
+        try {
+            const id = req.params.id;
+
+            const training = await Trainings.findByPk(id, {
+                include: [
+                    // {
+                    //     model: Users,
+                    //     attributes: userAttributes,
+                    // },
+                    PacePerKilometer,
+                ],
+                order: [
+                    [PacePerKilometer, 'training_id', 'ASC']
+                ],
+            });
+            if (!training) {
+                return res.sendStatus(404);
+            }
+
+            return res.json({
+                ...training.toJSON()
+            });
+        } catch (err) {
+            console.log(err);
+        }
+        return res.sendStatus(404);
+    }
+
 
 }
 

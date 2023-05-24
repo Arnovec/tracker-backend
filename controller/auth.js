@@ -26,7 +26,7 @@ function generateAccesToken(user) {
     return jwt.sign(
         { id: user.id, login: user.login, password: user.password },
         "access_key",
-        { expiresIn: "1m" }
+        { expiresIn: "10m" }
     )
 }
 
@@ -68,6 +68,7 @@ class authController {
 
     async login(req, res) {
         try {
+            console.log("1")
             checkValidation(req);
             const { login, password } = req.body;
             const user = await checkUser(login, password);

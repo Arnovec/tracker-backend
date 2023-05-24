@@ -1,13 +1,19 @@
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
-const { Users, Trainings } = require('./db/sequelize');
+const { Users, Trainings, Points, PacePerKilometer } = require('./db/sequelize');
+const { Sequelize } = require('sequelize');
+const { getDistanceFromLatLon } = require('./controller/geo');
 // const fs = require('fs');
+
+
+// "mysql2": "^3.2.0",
+//"pg": "^8.7.1",
+
 
 const authRouter = require('./routes/auth');
 const trainingRouter = require('./routes/training');
 const userRouter = require('./routes/user');
-const testRouter = require('./routes/test')
 
 
 const cors = require('cors');
@@ -27,9 +33,8 @@ const corsOpts = {
 app.use(cors(corsOpts));
 app.use(express.json());
 app.use('/api/auth', authRouter);
-app.use('/api/trainings', trainingRouter); 
-app.use('/api/users', userRouter); 
-app.use('/api/tests', testRouter);
+app.use('/api/trainings', trainingRouter);
+app.use('/api/users', userRouter);
 
 
 
@@ -59,36 +64,13 @@ app.get("/news", async (req, res) => {
 
 app.get("/temp", async (req, res) => {
     try {
-        await Trainings.destroy({
-            where: {
-                id: 24,
-            }
-        })
+
         return res.sendStatus(200);
-    } catch (err) {
-        console.log(err)
-    }
-    return res.sendStatus(401);
-})
-
-app.post("/add/training", async (req, res) => {
-    try {
-        const { trajectory } = req.body;
-        if (
-            trajectory !== undefined
-        ) {
-            const json = JSON.stringify({ trajectory });
-            const newTraining = (await db.query(
-                'INSERT INTO trainings (user_id, trajectory) values ($1, $2) RETURNING *',
-                ["1", trajectory]
-            )).rows[0];
-
-            return res.json({ message: "Ok", training: newTraining });
-        }
     } catch (err) {
         console.log(err);
     }
-    return res.sendStatus(400);
+    return res.sendStatus(404);
 });
 
 server.listen(8000);
+//lt --port 8000 --subdomain basckend
