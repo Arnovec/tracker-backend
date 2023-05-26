@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { Users } = require('../db/sequelize');
 const {
-    checkRefreshToken,
+    verifyRefreshToken,
     checkValidation
 } = require('./index');
 
@@ -24,15 +24,15 @@ async function checkUser(login, password) {
 
 function generateAccesToken(user) {
     return jwt.sign(
-        { id: user.id, login: user.login, password: user.password },
+        { id: user.id, login: user.login},
         "access_key",
-        { expiresIn: "10m" }
+        { expiresIn: "1m" }
     )
 }
 
 function generateRefreshToken(user) {
     return jwt.sign(
-        { id: user.id, login: user.login, password: user.password },
+        { id: user.id, login: user.login},
         "refresh_key"
     );
 }
@@ -63,7 +63,7 @@ class authController {
         } catch (error) {
             console.log(error);
         }
-        return res.sendStatus(401);
+        return res.sendStatus(400);
     }
 
     async login(req, res) {
@@ -77,20 +77,21 @@ class authController {
         } catch (error) {
             console.log(error);
         }
-        return res.sendStatus(401);
+        return res.sendStatus(400);
     }
 
     async refresh(req, res) {
         try {
+            console.log("new_token!!!!!!!")
             const authHeader = req.headers["authorization"];
             const token = authHeader.split(" ")[1];
-            const user = await checkRefreshToken(token);
+            const user = await verifyRefreshToken(token);
 
             return res.json(result(user));
         } catch (error) {
             console.log(error);
         }
-        return res.sendStatus(401);
+        return res.sendStatus(403);
     }
 
 }

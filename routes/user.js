@@ -22,13 +22,13 @@ router.get(
     '/:id/feed',
     userController.getFeed
 );
-router.post(
-    '/:id/subscribe',
-    userController.subscribe
-)
-router.post(
-    '/:id/unsubscribe',
-    userController.unsubscribe
-)
+// router.post(
+//     '/:id/subscribe',
+//     userController.subscribe
+// )
+// router.post(
+//     '/:id/unsubscribe',
+//     userController.unsubscribe
+// )
 
 module.exports = router;

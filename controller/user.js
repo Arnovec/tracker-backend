@@ -2,7 +2,7 @@ const { Sequelize } = require('sequelize');
 const { Users, Trainings, Points, Subscriptions } = require('../db/sequelize');
 const { userAttributes } = require('../db/attributes');
 const {
-    checkAccessToken,
+    verifyAccessToken,
     checkValidation
 } = require('./index');
 
@@ -106,11 +106,14 @@ class userController {
 
     async isSubscribe(req, res) {
         try {
-            console.log("rerererer");
             const id = req.params.id * 1;
-            const authHeader = req.headers["authorization"];
-            const token = authHeader.split(" ")[1];
-            const user2 = await checkAccessToken(token);
+
+            // const authHeader = req.headers["authorization"];
+            // const token = authHeader.split(" ")[1];
+            // const user2 = await verifyAccessToken(token);
+            const user2 = req.user;
+            
+
             if (user2.id == id) {
 
                 throw -1;
@@ -122,7 +125,6 @@ class userController {
                 }
             });
 
-            console.log("!!!!!!");
             if (subscriptions) {
 
                 return res.json({
@@ -258,49 +260,6 @@ class userController {
         return res.sendStatus(404);
     }
 
-    async subscribe(req, res) {
-        try {
-            const authHeader = req.headers["authorization"];
-            const token = authHeader.split(" ")[1];
-
-            const user = await checkAccessToken(token);
-            const id = req.params.id;
-
-            await Subscriptions.create({
-                from: user.id,
-                to: id,
-            });
-            return res.json({
-                message: "success",
-            });
-        } catch (err) {
-            console.log(err);
-        }
-        return res.sendStatus(404);
-    }
-
-    async unsubscribe(req, res) {
-        try {
-            const authHeader = req.headers["authorization"];
-            const token = authHeader.split(" ")[1];
-
-            const user = await checkAccessToken(token);
-            const id = req.params.id;
-
-            await Subscriptions.destroy({
-                where: {
-                    from: user.id,
-                    to: id,
-                }
-            });
-            return res.json({
-                message: "success",
-            });
-        } catch (err) {
-            console.log(err);
-        }
-        return res.sendStatus(404);
-    }
 }
 
 module.exports = new userController();

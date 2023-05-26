@@ -27,13 +27,18 @@ const Users = sequelize.define('users', {
     },
     name: {
         type: DataTypes.STRING,
+        allowNull: false,
     },
     surname: {
         type: DataTypes.STRING,
+        allowNull: false,
     },
     password: {
         type: DataTypes.STRING,
     },
+    avatar: {
+        type: DataTypes.STRING,
+    }
 }, {
     // Other model options go here
 });
@@ -59,6 +64,12 @@ const Trainings = sequelize.define('trainings', {
     },
     start_time: {
         type: DataTypes.BIGINT,
+    },
+    best_distance: {
+        type: DataTypes.BOOLEAN,
+    },
+    best_pace: {
+        type: DataTypes.BOOLEAN,
     },
 }, {
     // Other model options go here

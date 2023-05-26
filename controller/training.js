@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const { Users, Trainings, Points, PacePerKilometer } = require('../db/sequelize');
 const { userAttributes } = require('../db/attributes');
 const {
-    checkAccessToken,
+    verifyAccessToken,
     checkValidation
 } = require('./index');
 const { Sequelize } = require('sequelize');
@@ -17,11 +17,12 @@ class trainingController {
         try {
             const { points } = req.body;
             checkValidation(req);
-            const authHeader = req.headers["authorization"];
-            const token = authHeader.split(" ")[1];
 
+             // const authHeader = req.headers["authorization"];
+            // const token = authHeader.split(" ")[1];
 
-            const user = await checkAccessToken(token);
+            // const user = await verifyAccessToken(token);
+            const user = req.user;
 
             //Темп по каждому километру
             const training = {

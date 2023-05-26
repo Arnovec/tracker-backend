@@ -2,7 +2,8 @@ const userAttributes = [
     "id",
     "name",
     "login",
-    "surname"
+    "surname",
+    "avatar"
 ];
 
 
