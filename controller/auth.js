@@ -68,7 +68,6 @@ class authController {
 
     async login(req, res) {
         try {
-            console.log("1")
             checkValidation(req);
             const { login, password } = req.body;
             const user = await checkUser(login, password);
@@ -82,7 +81,6 @@ class authController {
 
     async refresh(req, res) {
         try {
-            console.log("new_token!!!!!!!")
             const authHeader = req.headers["authorization"];
             const token = authHeader.split(" ")[1];
             const user = await verifyRefreshToken(token);

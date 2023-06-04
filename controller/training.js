@@ -17,21 +17,52 @@ class trainingController {
         try {
             const { points } = req.body;
             checkValidation(req);
-
-             // const authHeader = req.headers["authorization"];
-            // const token = authHeader.split(" ")[1];
-
-            // const user = await verifyAccessToken(token);
             const user = req.user;
 
-            //Темп по каждому километру
+            const statistic = getStatisticByPoints(points)
+
+            const fast_training = await Trainings.findOne({
+                order: [
+                    ["pace", "asc"]
+                ],
+                where: {
+                    user_id: user.id,
+                }
+            })
+            const bigest_training = await Trainings.findOne({
+                order: [
+                    ["distance", "desc"]
+                ],
+                where: {
+                    user_id: user.id,
+                }
+            })
+
+            let best_distance = false;
+            let best_pace = false;
+
+            if (bigest_training && bigest_training.distance <= statistic.distance) {
+                best_distance = true;
+                if (bigest_training.distance < statistic.distance) {
+                    bigest_training.best_distance = false;
+                    bigest_training.save();
+                }
+            }
+            if (fast_training && fast_training.pace >= statistic.pace) {
+                best_pace = true;
+                if (fast_training.pace > statistic.pace) {
+                    fast_training.best_pace = false;
+                    fast_training.save();
+                }
+            }
+
             const training = {
                 points,
                 user_id: user.id,
-                ...getStatisticByPoints(points),
+                ...statistic,
+                best_distance,
+                best_pace,
             }
-
-            console.log(training.pace_per_kilometer);
 
             const newTraining = Trainings.build(
                 training,
@@ -43,13 +74,9 @@ class trainingController {
                 }
             );
 
-            newTraining.save();
+            await newTraining.save();
 
-            // TODO qwe
-
-
-
-            return res.json({ message: "Ok" });
+            return res.json(newTraining.toJSON());
         } catch (error) {
             console.log(error);
         }
@@ -84,20 +111,12 @@ class trainingController {
 
                 ],
                 order: [
-                    // ["start_time", "Desc"],
                     ["id", "Desc"],
                     [Points, 'time', 'ASC']
                 ],
-                // raw: true,
-                // nest : true,
-
-
             });
 
 
-            // console.log("------------------------------------------")
-            // console.log(trainings)
-            // console.log("------------------------------------------")
             return res.json({
                 elements: trainings
             });
@@ -120,7 +139,8 @@ class trainingController {
                     Points, PacePerKilometer,
                 ],
                 order: [
-                    [Points, 'time', 'ASC']
+                    [Points, 'time', 'ASC'],
+                    [PacePerKilometer, 'kilometer', 'ASC']
                 ],
             });
             if (!training) {
@@ -142,10 +162,6 @@ class trainingController {
 
             const training = await Trainings.findByPk(id, {
                 include: [
-                    // {
-                    //     model: Users,
-                    //     attributes: userAttributes,
-                    // },
                     PacePerKilometer,
                 ],
                 order: [

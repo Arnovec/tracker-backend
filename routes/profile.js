@@ -13,7 +13,7 @@ var storage = multer.diskStorage({
     filename: function (req, file, cb) {
         const fileSplit = file.originalname.split('.')
         const type = fileSplit[fileSplit.length - 1];
-        cb(null, Date.now() + `.${type}`) //Appending .jpg
+        cb(null, Date.now() + `.${type}`)
     }
 })
 

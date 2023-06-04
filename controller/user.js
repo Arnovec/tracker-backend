@@ -13,13 +13,9 @@ class userController {
     async getList(req, res) {
         try {
             const search = req.query.search;
-            console.log("search", search)
-            // let page = Number(req.query.page);
             let last_id = Number(req.query.last_id);
             let where = {};
             let limit = 14;
-            // let offset = 0;
-
 
             if (search) {
                 Object.assign(
@@ -52,14 +48,6 @@ class userController {
                 })
             }
 
-            // where {
-            //     [Symbol(and)]: [ Where { attribute: [Object], comparator: '=', logic: undefined } ]
-            // }
-
-            console.log("where", where)
-            // if (Number.isInteger(page) && page > 1) {
-            //     offset = (page - 1) * limit
-            // }
             const elements = await Users.findAll({
                 attributes: userAttributes,
                 where: where,
@@ -67,9 +55,7 @@ class userController {
                 order: [
                     ["id", "Desc"],
                 ],
-                // offset
             });
-            console.log("elements length", elements.length)
             return res.json({
                 elements
             });
@@ -85,11 +71,6 @@ class userController {
             const id = req.params.id;
             const user = await Users.findByPk(id, {
                 attributes: userAttributes,
-                // include:[
-                //     {
-
-                //     }
-                // ],
             });
 
             if (!user) {
@@ -108,9 +89,6 @@ class userController {
         try {
             const id = req.params.id * 1;
 
-            // const authHeader = req.headers["authorization"];
-            // const token = authHeader.split(" ")[1];
-            // const user2 = await verifyAccessToken(token);
             const user2 = req.user;
             
 
@@ -155,25 +133,6 @@ class userController {
                 };
             }
 
-            // const u2 = await Users.findByPk(id, {
-            //     attributes: [],
-            //     include: [
-            //         {
-            //             model: Trainings,
-            //             as: "trainings",
-            //             // include: [
-            //             //     {
-            //             //         model: Users,
-            //             //         attributes: userAttributes,
-            //             //     },
-            //             //     {
-            //             //         model: Points,
-            //             //     }
-            //             // ],
-            //         }
-            //     ],
-            // });
-
             const subscribe_ = (await Subscriptions.findAll({
                 attributes: ["to"],
                 where: {
@@ -198,14 +157,9 @@ class userController {
 
                 ],
                 order: [
-                    // ["start_time", "Desc"],
                     ["id", "Desc"],
                     [Points, 'time', 'ASC']
                 ],
-                // raw: true,
-                // nest : true,
-
-
             });
 
             return res.json({

@@ -13,16 +13,8 @@ router.post(
     trainingController.add
 );
 router.get(
-    '/list',
-    trainingController.getList
-);
-router.get(
     '/:id',
     trainingController.getTrainingById
-);
-router.get(
-    '/:id/analysis',
-    trainingController.getTrainingAnalysisById
 );
 
 

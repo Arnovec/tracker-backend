@@ -26,7 +26,6 @@ async function checkUserWithHash(user) {
 
 async function verifyAccessToken(token) {
     if (!token) throw new Error();
-    console.log("пришедший токен", token)
     const user = jwt.verify(token, "access_key");
     await checkUserWithHash(user);
 
@@ -44,7 +43,6 @@ async function verifyRefreshToken(token) {
 
 async function checkAccessToken(req, res, next) {
     try {
-        console.log("rerererer");
         const authHeader = req.headers["authorization"];
         const token = authHeader.split(" ")[1];
 
@@ -52,7 +50,6 @@ async function checkAccessToken(req, res, next) {
         return next();
     } catch (err) {
         console.log(err)
-        console.log("токен исек(((((")
     }
     return res.sendStatus(403);
 }

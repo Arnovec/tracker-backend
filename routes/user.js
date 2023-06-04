@@ -1,6 +1,7 @@
 const Router = require('express');
 const router = new Router();
 const userController = require('../controller/user');
+const { checkAccessToken } = require('../controller');
 
 router.get(
     '/list',
@@ -11,7 +12,8 @@ router.get(
     userController.getUserById
 );
 router.get(
-    '/:id/isSubscribe',
+    '/:id/issubscribe',
+    checkAccessToken,
     userController.isSubscribe
 );
 router.get(
@@ -22,13 +24,5 @@ router.get(
     '/:id/feed',
     userController.getFeed
 );
-// router.post(
-//     '/:id/subscribe',
-//     userController.subscribe
-// )
-// router.post(
-//     '/:id/unsubscribe',
-//     userController.unsubscribe
-// )
 
 module.exports = router;

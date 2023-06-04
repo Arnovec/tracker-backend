@@ -26,10 +26,9 @@ class profileController {
             if (oldAvatar) {
                 fs.unlink('data/image/' + oldAvatar, err => {
                     if (err) {
-                        console.log("!Удаление несуществующего файла data/image/" + oldAvatar);
                         console.log(err)
                         return
-                    }; // не удалось удалить файл
+                    };
                     console.log('Файл data/image/' + oldAvatar + ' удалён');
                 });
             }
@@ -81,10 +80,6 @@ class profileController {
 
     async subscribe(req, res) {
         try {
-            // const authHeader = req.headers["authorization"];
-            // const token = authHeader.split(" ")[1];
-
-            // const user = await verifyAccessToken(token);
             const user = req.user;
             const id = req.params.id;
 
@@ -103,10 +98,6 @@ class profileController {
 
     async unsubscribe(req, res) {
         try {
-            // const authHeader = req.headers["authorization"];
-            // const token = authHeader.split(" ")[1];
-
-            // const user = await verifyAccessToken(token);
             const user = req.user;
             const id = req.params.id;
 

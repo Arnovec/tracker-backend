@@ -21,8 +21,6 @@ function getStatisticByPoints(points) {
 
     let part = 0;
 
-    console.log("длинна в методе ", points.length);
-
     for (let i = 1; i < points.length; i++) {
         if (part == points[i].part) {
 
@@ -31,10 +29,6 @@ function getStatisticByPoints(points) {
             distance += lastDistance;
             kilometerWaiting += lastDistance;
             if (kilometerWaiting >= 1000) {
-
-                console.log(kilometerNumber)
-                console.log(Math.floor((time - kilometerStartTime) / kilometerWaiting))
-
                 pace_per_kilometers.push({
                     kilometer: kilometerNumber,
                     pace: getPace((time - kilometerStartTime), kilometerWaiting),
